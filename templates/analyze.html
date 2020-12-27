@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+
+{% block body %}
+<div class="container my-3">
+    <h1 class="text-center">Your Analyzed Text</h1>
+    <div
+        class="row no-gutters border rounded overflow-hidden flex-md-row mb-4 shadow-sm h-md-250 my-4 position-relative">
+        <div class="col p-4 d-flex flex-column position-static bg-light" style="height:100%;">
+            <div class="flex-box">
+                <p>
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <button id="corner-btn" class="btn btn-outline-primary me-md-2" style="width:70px;" onclick="copy()">
+                            Copy
+                        </button>
+                    </div>
+                     <textarea class="form-control my-2" name='text' id="copy-text" rows="11">{{ analyzed_text }}</textarea>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block js %}
+
+<script>
+    function copy() {
+        if (document.selection) {
+            var range = document.body.createTextRange();
+            range.moveToElementText(document.getElementById("copy-text"));
+            range.select().createTextRange();
+            document.execCommand("copy");
+
+        } else if (window.getSelection) {
+            var range = document.createRange();
+            range.selectNode(document.getElementById("copy-text"));
+            window.getSelection().addRange(range);
+            document.execCommand("copy");
+            alert('Text Copied')
+
+        }
+
+    }
+</script>
+{% endblock js %}
+{% endblock body %}

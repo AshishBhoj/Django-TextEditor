@@ -1,0 +1,162 @@
+{% extends 'base.html' %}
+
+{% block title %} Home{% endblock title %}
+
+{% block homeactive %} active {% endblock homeactive %}
+
+{% block style %}
+<style>
+    .typewrite {
+        text-decoration: none;
+        display: block;
+        border: 2px solid black;
+        background-color: tomato;
+        color: white;
+        margin: auto;
+        margin-bottom: -20px;
+        font-size: 30px;
+        font-family: 'Times New Roman', Times, serif;
+        text-align: center;
+    }
+</style>
+{% endblock style %}
+
+{% block body %}
+
+<div class="container my-4">
+    <h1>
+        <a href="" class="typewrite text-center" data-period="2000"
+            data-type='[ "Welcome To TextEditor", "Edit Any Kind Of Text", "Use TextEditor For Free", "Have Fun !!!" ]'>
+            <span class="wrap"></span>
+        </a>
+    </h1>
+</div>
+
+<div class="container">
+    <form action='/analyze' onsubmit="return validate()" method='post'>
+        {% csrf_token %}
+        <div class="form-group">
+            <h3 style="margin-top:33px;"><span id="typed"></span></h3>
+            <textarea class="form-control" name='text' id="exampleFormControlTextarea1" rows="11"></textarea>
+            <!-- Word Counter -->
+            <p class="text-muted"><span id="wordCount">0</span> Characters
+                <script type="text/javascript">
+                    var exampleFormControlTextarea1 = document.getElementById("exampleFormControlTextarea1");
+                    var wordCount = document.getElementById("wordCount");
+
+                    exampleFormControlTextarea1.addEventListener("keyup", function () {
+                        var characters = exampleFormControlTextarea1.value.split('');
+                        wordCount.innerText = characters.length;
+                    });
+                </script>
+            </p>
+        </div>
+
+        <div class="custom-control custom-switch">
+            <input type="checkbox" name="removepunc" class="custom-control-input" id="customSwitch1">
+            <label class="custom-control-label" for="customSwitch1">Remove Punctuations</label>
+        </div>
+
+        <div class="custom-control custom-switch">
+            <input type="checkbox" name="fullcaps" class="custom-control-input" id="customSwitch2">
+            <label class="custom-control-label" for="customSwitch2">UPPERCASE</label>
+        </div>
+
+        <div class="custom-control custom-switch">
+            <input type="checkbox" name="newlineremover" class="custom-control-input" id="customSwitch3">
+            <label class="custom-control-label" for="customSwitch3">New Line Remover</label>
+        </div>
+
+        <div class="custom-control custom-switch">
+            <input type="checkbox" name="extraspaceremover" class="custom-control-input" id="customSwitch4">
+            <label class="custom-control-label" for="customSwitch4">Extra Spaces Remover</label>
+        </div>
+
+        <div class="custom-control custom-switch">
+            <input type="checkbox" name="numberremover" class="custom-control-input" id="customSwitch5">
+            <label class="custom-control-label" for="customSwitch5">Number Remover</label>
+        </div>
+
+        <button type="submit" class="btn btn-outline-dark mt-2">Analyze Text</button>
+    </form>
+</div>
+<div id="typed-strings">
+</div>
+
+{% block js %}
+<script>
+    var TxtType = function (el, toRotate, period) {
+        this.toRotate = toRotate;
+        this.el = el;
+        this.loopNum = 0;
+        this.period = parseInt(period, 10) || 2000;
+        this.txt = '';
+        this.tick();
+        this.isDeleting = false;
+    };
+
+    TxtType.prototype.tick = function () {
+        var i = this.loopNum % this.toRotate.length;
+        var fullTxt = this.toRotate[i];
+
+        if (this.isDeleting) {
+            this.txt = fullTxt.substring(0, this.txt.length - 1);
+        } else {
+            this.txt = fullTxt.substring(0, this.txt.length + 1);
+        }
+
+        this.el.innerHTML = '<span class="wrap">' + this.txt + '</span>';
+
+        var that = this;
+        var delta = 200 - Math.random() * 100;
+
+        if (this.isDeleting) {
+            delta /= 2;
+        }
+
+        if (!this.isDeleting && this.txt === fullTxt) {
+            delta = this.period;
+            this.isDeleting = true;
+        } else if (this.isDeleting && this.txt === '') {
+            this.isDeleting = false;
+            this.loopNum++;
+            delta = 500;
+        }
+
+        setTimeout(function () {
+            that.tick();
+        }, delta);
+    };
+
+    window.onload = function () {
+        var elements = document.getElementsByClassName('typewrite');
+        for (var i = 0; i < elements.length; i++) {
+            var toRotate = elements[i].getAttribute('data-type');
+            var period = elements[i].getAttribute('data-period');
+            if (toRotate) {
+                new TxtType(elements[i], JSON.parse(toRotate), period);
+            }
+        }
+        // INJECT CSS
+        var css = document.createElement("style");
+        css.type = "text/css";
+        css.innerHTML = ".typewrite > .wrap { border-right: 0.08em solid #fff}";
+        document.body.appendChild(css);
+    };
+</script>
+
+<script>
+    function validate() {
+        var textarea = document.getElementById('exampleFormControlTextarea1').value;
+        var span = document.getElementById('messageofvalidate');
+
+        if (textarea == '') {
+            span.innerHTML = 'Please Write Your Message';
+            return false;
+        }
+
+    }
+</script>
+
+{% endblock js %}
+{% endblock body %}
